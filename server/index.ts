@@ -4,7 +4,7 @@ import { createServer } from "http";
 import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./json-storage";
+import { storage } from "./storage";
 
 declare module "express-session" {
   interface SessionData {
@@ -63,9 +63,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Initialize JSON storage
-  await storage.init();
-  
+  // Database initialization is handled by the pool connection in db.ts
+  // Register routes
   registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -85,20 +84,18 @@ app.use((req, res, next) => {
   const uploadDir = path.join(process.cwd(), "server", "uploads");
   app.use("/server/uploads", express.static(uploadDir));
 
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
+  if (!process.env.VERCEL) {
+    const port = 5000;
+    server.listen(
+      {
+        port,
+        host: "0.0.0.0",
+      },
+      () => {
+        log(`serving on port ${port}`);
+      }
+    );
   }
-
-  const port = 5000;
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-    },
-    () => {
-      log(`serving on port ${port}`);
-    }
-  );
 })();
+
+export { app };
