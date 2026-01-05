@@ -211,7 +211,7 @@ export class DatabaseStorage implements IStorage {
       studentId,
       issueDate,
       validThrough
-    }).returning();
+    } as any).returning();
     return created;
   }
 
