@@ -84,6 +84,12 @@ app.use((req, res, next) => {
   const uploadDir = path.join(process.cwd(), "server", "uploads");
   app.use("/server/uploads", express.static(uploadDir));
 
+  if (app.get("env") === "development") {
+    await setupVite(app, server);
+  } else {
+    serveStatic(app);
+  }
+
   if (!process.env.VERCEL) {
     const port = 5000;
     server.listen(

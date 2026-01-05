@@ -39,9 +39,17 @@ const RareBooks: React.FC = () => {
 
   useEffect(() => {
     fetch('/api/rare-books')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
       .then(data => {
-        setBooks(data);
+        if (Array.isArray(data)) {
+          setBooks(data);
+        } else {
+          setBooks([]);
+          console.error("Received non-array data for rare books:", data);
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -213,13 +221,13 @@ const RareBooks: React.FC = () => {
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-2">{selectedBook.title}</h2>
                 <p className="text-muted-foreground mb-6 leading-relaxed">{selectedBook.description}</p>
-                
+
                 <div className="p-4 bg-secondary rounded-lg mb-6 text-center border-2 border-dashed border-primary/20 select-none">
                   <p className="text-sm text-muted-foreground">Digital Preview Mode</p>
                   <p className="text-xs text-muted-foreground italic">Protected content: Read-only access</p>
                 </div>
 
-                <div 
+                <div
                   className="relative w-full aspect-[3/4] bg-muted rounded-lg overflow-hidden border shadow-inner select-none"
                   onContextMenu={(e) => e.preventDefault()}
                 >
@@ -236,7 +244,7 @@ const RareBooks: React.FC = () => {
                           View Only Mode • GCMN Library Archive
                         </div>
                       </div>
-                      
+
                       {/* Security Watermark - Reduced opacity and made pointer-events-none to ensure scroll works */}
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] rotate-45 select-none">
                         <div className="text-4xl font-bold text-black whitespace-nowrap">

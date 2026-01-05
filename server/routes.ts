@@ -782,6 +782,16 @@ export function registerRoutes(app: Express): void {
     }
   });
 
+  app.get("/api/rare-books", async (req, res) => {
+    try {
+      const books = await storage.getRareBooks();
+      // Filter for active/public books if needed, or just return all for now
+      res.json(books);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.get("/api/admin/rare-books", requireAdmin, async (req, res) => {
     try {
       const books = await storage.getRareBooks();
